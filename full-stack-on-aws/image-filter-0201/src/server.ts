@@ -28,6 +28,40 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   //   the filtered image file [!!TIP res.sendFile(filteredpath); might be useful]
 
   /**************************************************************************** */
+//try/filteredimage?image_url={{URL}}
+  // app.get('/filteredimage', async ( req, res ) => {
+  //   let url = req.query.image_url;
+  //   console.log(url);
+  //   if (url) {
+  //     filterImageFromURL(url).then((response)=> {
+  //       console.log('imagePath');
+  //       console.log(response);
+  //       res.sendFile(response);
+  //       res.on('finish', function() {
+  //         deleteLocalFiles([response]);
+  //       });
+  //     });
+  //   } else {
+  //     res.status(404).send("The URL is not True");
+  //   }
+  // } );
+
+  app.get( "/filteredimage", async(req:express.Request, res:express.Response) => {
+    let {image_url} = req.query;
+    if (!image_url){
+      res.status(400).send('Error: The submitted url is empty');
+    } else {
+      await filterImageFromURL(image_url).then( function (image_filtered_path){
+        res.sendFile(image_filtered_path, () => {       
+          deleteLocalFiles([image_filtered_path]);       
+        });   
+      }).catch(function(err){
+        res.status(400).send('Error:' + err + 'For some reason the image cannot be filtered. Please provide the following ID to our support:' + Math.random().toString(36).substr(2, 9));
+      });  
+
+    }
+  });
+
 
   //! END @TODO1
   
